@@ -1,0 +1,18 @@
+* {
+    font-family: Poppins;
+	font-size: 15px; /*475057*/
+	color: #475057;
+}
+
+
+#create-user-icon {
+    font-size: 20px;
+}
+
+.delete-icon{
+    color: red;
+}
+
+div .bg-secondary{
+	background-color: lightgrey!important;
+}
