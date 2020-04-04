@@ -10,138 +10,177 @@
 	<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,700&display=swap" rel="stylesheet"> 
 <!-- 	Bootstrap -->
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 
 </head>
 <body>
+  <main>
     <div class="container-fluid">
         <div class="row bg-dark py-2">
             <div class="col">     <!-- Title-->
-                <H1 class="text-danger m-0">Corona CRM</H1>
+                <h1 class="text-danger m-0">Corona CRM</h1>
             </div>
         </div>
-        <div class="row">
-             <div class="col-3 bg-secondary"> <!-- Add User-->
-                <h5 class="m-4 mb-5"><i class="fas fa-user-plus mr-2"  id="create-user-icon"></i>Create new Customer</h5>
-                <form>
-                    <div class="form-group row">
-                        <label for="fullName" class="col-sm-4 col-form-label">Full Name</label>
-                        <div class="col-sm-8">
-                          <input type="text" class="form-control" id="fullName" placeholder="Enter name">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="email" class="col-sm-4 col-form-label">Email</label>
-                        <div class="col-sm-8">
-                          <input type="email" class="form-control" id="email" placeholder="Enter email">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="birthDate" class="col-sm-4 col-form-label">Birth Date</label>
-                        <div class="col-sm-8">
-                          <input type="date" class="form-control" id="birthDate">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="notes" class="col-sm-4 col-form-label">Notes</label>
-                        <div class="col-sm-8">
-                          <textarea class="form-control" rows="2" id="notes" placeholder="Enter your notes..."></textarea>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                      <!-- <div class="col-sm-2">Over 18 yaars old?</div> -->
-                      <div class="col-sm-8  offset-sm-4">
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" id="over18">
-                          <label class="form-check-label" for="over18">
-                            Over 18 years old?
-                          </label>
+        <section> <!--Customers section -->
+          <div class="row">
+              <div class="col-3 bg-secondary"> <!-- Add User-->
+                  <h5 class="m-4 mb-5"><i class="fas fa-user-plus mr-2"  id="create-user-icon"></i>Create new Customer</h5>
+                  <form id="new-customer-form">
+                      <div class="form-group row">
+                          <label for="fullName" class="col-sm-4 col-form-label">Full Name</label>
+                          <div class="col-sm-8">
+                            <input type="text" class="form-control" name="fullName" id="fullName" placeholder="Enter name">
+                            <p class="text-danger small d-none error-message">* Invalid: must contain at least two words</p>
+                          </div>
+                      </div>
+                      
+                      <div class="form-group row">
+                          <label for="email" class="col-sm-4 col-form-label">Email</label>
+                          <div class="col-sm-8">
+                            <input type="email" class="form-control" name="email" id="email" placeholder="Enter email">
+                            <p class="text-danger small d-none error-message">* Invalid: email must contain @</p>
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                          <label for="birthDate" class="col-sm-4 col-form-label">Birth Date</label>
+                          <div class="col-sm-8">
+                            <input type="date" class="form-control" name="birthDate" id="birthDate">
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                          <label for="notes" class="col-sm-4 col-form-label">Notes</label>
+                          <div class="col-sm-8">
+                            <textarea class="form-control" rows="2" name="notes" id="notes" placeholder="Enter your notes..."></textarea>
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                        <div class="col-sm-8  offset-sm-4">
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="over18" name="over18">
+                            <label class="form-check-label" for="over18">
+                              Over 18 years old?
+                            </label>
+                            <p class="text-danger small d-none error-message">* Must be over 18</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div class="form-group row">
-                      <div class="col-sm-10 offset-sm-4">
-                        <button type="submit" class="btn btn-outline-primary font-weight-bold">Create</button>
+                      <div class="form-group row">
+                        <div class="col-sm-10 offset-sm-4">
+                          <button type="submit" class="btn btn-outline-primary font-weight-bold">Create</button>
+                        </div>
                       </div>
-                    </div>
-                  </form>
-            </div>
-            <div class="col-9 p-5">     <!-- Users Table-->
-                <table class="table table-hover">
-                    <thead class="thead-light">
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Full name</th>
-                        <th scope="col">Email address</th>
-                        <th scope="col">Birthdate</th>
-                        <th scope="col">Created on</th>
-                        <th scope="col">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row">1</th>
-                        <td>Mark Otto</td>
-                        <td>ottoson@gmail.com</td>
-                        <td>23/11/1978</td>
-                        <td>15/3/2020</td>
-                        <td>
-                            <i class="far fa-edit mr-2"></i>
-                            <i class="far fa-trash-alt text-danger ml-1"></i>
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">2</th>
-                        <td>Jacob Thornton</td>
-                        <td>thornron23@gmail.com</td>
-                        <td>23/12/1981</td>
-                        <td>15/3/2020</td>
-                        <td>
-                            <i class="far fa-edit mr-2"></i>
-                            <i class="far fa-trash-alt text-danger ml-1"></i>
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">3</th>
-                        <td>Larry Bird</td>
-                        <td>thebird@gmail.com</td>
-                        <td>12/10/1994</td>
-                        <td>15/3/2020</td>
-                        <td>
-                            <i class="far fa-edit mr-2"></i>
-                            <i class="far fa-trash-alt text-danger ml-1"></i>
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">3</th>
-                        <td>Ameliya Goerge</td>
-                        <td>amiliya.b@gmail.com</td>
-                        <td>12/10/1968</td>
-                        <td>15/3/2020</td>
-                        <td>
-                            <i class="far fa-edit mr-2"></i>
-                            <i class="far fa-trash-alt text-danger ml-1"></i>
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">5</th>
-                        <td>Matt thornee</td>
-                        <td>Mattthedmon@gmail.com</td>
-                        <td>12/10/1956</td>
-                        <td>15/3/2020</td>
-                        <td>
-                            <i class="far fa-edit mr-2"></i>
-                            <i class="far fa-trash-alt text-danger ml-1"></i>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-            </div>
-        </div>
+                    </form>
+              </div>
+              <div class="col-9 p-5">     <!-- Users Table-->
+                  <table class="table table-hover">
+                      <thead class="thead-light">
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Full name</th>
+                          <th scope="col">Email address</th>
+                          <th scope="col">Birthdate</th>
+                          <th scope="col">Created on</th>
+                          <th scope="col">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody id="customers-list-table-body">
+                      </tbody>
+                    </table>
+              </div>
+          </div>
+        </section>
 
+
+        <section>   <!--Corona Dashboard section -->
+          <div class="row pt-3">
+
+            <div class="col-5"  style="background-color: #e3e4e8;">
+              <div class="row">
+                <div class="col p-2">
+                  <h3 class="h4 pl-2">Corona Virus in <span class="h4 text-primary" id="country-name"></span></h3> 
+                </div> 
+              </div>
+              <div class="row pl-2">
+                <div class="col-6 p-2">
+                  <div class="bg-white p-3 parameters-frame">
+                    <p class="m-0 h6">Total confirmed cases:</p>
+                    <p class="text-danger font-weight-bold m-0" id="total-cases"></p>
+                  </div>
+                </div>
+                <div class="col-6 p-2">
+                  <div class="bg-white p-3 parameters-frame">
+                    <p class="m-0 h6">Confirmed cases today: </p>
+                    <p class="text-danger font-weight-bold m-0" id="cases-today"></p>
+                  </div>
+                </div>
+                <div class="col-6 p-2">
+                  <div class="bg-white p-3 parameters-frame">
+                    <p class=" m-0 h6">Total deaths: </p>
+                    <p class="text-danger font-weight-bold m-0" id="death"></p>
+                  </div>
+                </div>
+                <div class="col-6 p-2">
+                  <div class="bg-white p-3 parameters-frame">
+                    <p class=" m-0 h6">Total recovered: </p>
+                    <p class="text-danger font-weight-bold m-0" id="recovered"></p>
+                  </div>
+                </div>
+                <div class="col p-2">
+
+                  <form id="new-choose-country-form">
+                    <div class="form-group row">
+                        <div class="col-12">                        
+                          <label for="choose-input-country">Choose country</label>
+                        </div>>
+                        <div class="col-6">
+                          <select class="form-control" id="choose-input-country" name="countyChosen">
+                            <option value="IL">israel</option>
+                            <option value="IT">Italy</option>
+                            <option value="ES">Spain</option>
+                            <option value="US">US</option>
+                            <option value="CN">China</option>
+                          </select>
+                        </div>
+                        <div class="col-3">
+                          <div class="form-group row">
+                            <button type="submit" class="btn btn-outline-primary font-weight-bold">Change</button>
+                          </div>
+                        </div>
+                    </div>                      
+                  </form>
+
+                </div>    
+              </div>     
+            </div>
+
+            <div class="col-7" style="background-color: #e3e4e8;">
+                <div class="row">
+                  <div class="col py-2">
+                    <h3 class="h4">Confirmed cases per day<span class="h4" id="country-name"></span></h3> 
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col py-2">
+                    <canvas class="bg-white py-4" id="corona-per-day-chart"></canvas>
+                  </div>
+                </div> 
+            </div>
+
+          </div>
+        </section>
+
+
+      
+ 
 
 
     </div>
-    
+  </main>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  <script src="scripts.js"></script>
+
 </body>
 
 </html>

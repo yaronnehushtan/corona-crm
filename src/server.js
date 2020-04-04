@@ -19,6 +19,11 @@ app.put('/customer', (req,res)=>{       //Create customer
     const birthDate=req.body.birthDate;
     const notes=req.body.notes;
 
+    if (fullName.split(' ').length<2 || email.indexOf('@')===-1){
+        res.status(400).json({"error": "Invalid input"}).send();
+        return
+    }
+
     customers.push({
         id: customers.length+1,
         fullName: fullName,

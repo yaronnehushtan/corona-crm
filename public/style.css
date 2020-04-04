@@ -16,3 +16,16 @@
 div .bg-secondary{
 	background-color: lightgrey!important;
 }
+
+.parameters-frame{
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    font-size: 2rem
+}
+
+.parameters-frame p{
+    font-size: 1.2rem
+}
+
