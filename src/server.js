@@ -20,7 +20,7 @@ app.put('/customer', (req,res)=>{       //Create customer
     const notes=req.body.notes;
 
     if (fullName.split(' ').length<2 || email.indexOf('@')===-1){
-        res.status(400).json({"error": "Invalid input"}).send();
+        res.status(400).json({"error": "Invalid input"});
         return
     }
 
@@ -63,6 +63,11 @@ app.post('/customer/:id', (req,res)=>{      //edit customer
 
     if (!requestedCustomer){
         res.status(404).send();
+        return
+    }
+
+    if (req.body.fullName.split(' ').length<2 || req.body.email.indexOf('@')===-1){
+        res.status(400).json({"error": "Invalid input"});
         return
     }
 

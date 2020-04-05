@@ -1,6 +1,9 @@
 const newCustomerForm = document.getElementById('new-customer-form');
 const API_URL= 'http://localhost:3000';
+const CORONA_DATA_API_URL='https://corona-api.com/countries'
 const tBody=document.getElementById("customers-list-table-body");
+
+
 
 newCustomerForm.addEventListener('submit', (e) => {
     e.preventDefault();  
@@ -22,10 +25,10 @@ newCustomerForm.addEventListener('submit', (e) => {
 
 // check all validations
 function validate(form){
-    let nameError=document.getElementsByClassName('error-message')[0];
-    let emailError=document.getElementsByClassName('error-message')[1];
-    let over18Error=document.getElementsByClassName('error-message')[2];
-    
+    let nameError=document.getElementById('error-message-fullName');
+    let emailError=document.getElementById('error-message-email');
+    let over18Error=document.getElementById('error-message-over18');
+
     let validName=true;
     let validEmail=true;
     
@@ -73,40 +76,48 @@ function renderCustomersList(){
     .then(response => response.json())
     .then(customersList => {   
     
-    tBody.innerHTML = '';
-    customersList.forEach((customer)=>{
+      tBody.innerHTML = '';
+      customersList.forEach((customer)=>{
+        let row=document.createElement("tr");
+        let objTd={};
 
-      let row=document.createElement("tr");
-      let idTh=document.createElement("th");
-      let fullNameTd=document.createElement("td");
-      let emailTd=document.createElement("td");
-      let birthDateTD=document.createElement("td");
-      let ctreatedDateTd=document.createElement("td");
+        for (key in customer) {
+            // create tds and set atribute
 
-      idTh.textContent=customer.id;
-      idTh.setAttribute("scope", "row");
-      fullNameTd.textContent=customer.fullName;
-      emailTd.textContent=customer.email;
-      birthDateTD.textContent=customer.birthDate.split('-').reverse().join('/');
-      ctreatedDateTd.textContent=customer.ctreatedDate; 
+            if (key!=='notes') {
+                if (key==='id') {
+                    objTd[key]=document.createElement("th");
+                    objTd[key].setAttribute("scope", "row")
+                } else {
+                    objTd[key]=document.createElement("td");
+                }
+        
+                // Add text content
+                if (key==='birthDate') {
+                    objTd[key].textContent=customer[key].split('-').reverse().join('/')
+                } else {
+                    objTd[key].textContent=customer[key];
+                }
+            }       
+        }
 
-      let actionTd=document.createElement("td");
-      let editCustomerI=document.createElement("i");
-      let deleteCustomerI=document.createElement("i");
-      editCustomerI.setAttribute("class", "far fa-edit mr-2");
-      deleteCustomerI.setAttribute("class", "far fa-trash-alt text-danger ml-1");
-      actionTd.appendChild(editCustomerI);
-      actionTd.appendChild(deleteCustomerI);
-     
-      row.appendChild(idTh);
-      row.appendChild(fullNameTd);
-      row.appendChild(emailTd);
-      row.appendChild(birthDateTD);
-      row.appendChild(ctreatedDateTd);
-      row.appendChild(actionTd);
-      tBody.appendChild(row);    
+        // Add Action td
+        objTd.action=document.createElement("td");
+        let editCustomerI=document.createElement("i");
+        let deleteCustomerI=document.createElement("i");
+        editCustomerI.setAttribute("class", "far fa-edit mr-2");
+        deleteCustomerI.setAttribute("class", "far fa-trash-alt text-danger ml-1");
+        objTd.action.appendChild(editCustomerI);
+        objTd.action.appendChild(deleteCustomerI);      
+        
+        //append all tds to row
+        for (key in objTd) {
+            row.appendChild(objTd[key]);
+        }
+
+        tBody.appendChild(row);   
     })
- 
+
 })
 
 }
@@ -123,6 +134,7 @@ const totalCases=document.getElementById('total-cases');
 const casesToday=document.getElementById('cases-today');
 const totalDeath=document.getElementById('death');
 const totalRecovered=document.getElementById('recovered');
+const coronaPerDayChart=document.getElementById('corona-per-day-chart').getContext('2d');
 
 // call render corona dashboard first time
  let coronaData=renderCoronaData(inputCountry=newChooseContryForm.countyChosen.value);
@@ -137,43 +149,58 @@ const totalRecovered=document.getElementById('recovered');
 
 // render corona dashboard function
 function renderCoronaData(inputCountry){
-    let CORONA_DATA_API_URL='https://corona-api.com/countries/'+inputCountry;
+    let coronaApiByCountry=CORONA_DATA_API_URL+'/'+inputCountry;
     
-    return fetch(CORONA_DATA_API_URL)
+    return fetch(coronaApiByCountry)
     .then(response => response.json())
     .then(coronaData => {  
     
     let israelCoronaData=coronaData.data
     countryName.textContent=israelCoronaData.name;
-    totalCases.textContent=israelCoronaData.latest_data.confirmed
-    casesToday.textContent=israelCoronaData.today.confirmed
-    totalDeath.textContent=israelCoronaData.latest_data.deaths
-    totalRecovered.textContent=israelCoronaData.latest_data.recovered
+    totalCases.textContent=numberWithCommas(israelCoronaData.latest_data.confirmed);
+    casesToday.textContent=numberWithCommas(israelCoronaData.today.confirmed);
+    totalDeath.textContent=numberWithCommas(israelCoronaData.latest_data.deaths);
+    totalRecovered.textContent=numberWithCommas(israelCoronaData.latest_data.recovered);
 
-    let israelCoronaTLData=coronaData.data.timeline;
+    let updateChartVar=updateChart(coronaData.data.timeline);    
+    }) 
+}
 
-    const entries = Object.entries(israelCoronaTLData)
-    let israelTLDates=[];
-    let israelTLCases=[];
+function numberWithCommas(strNum) {
+    return strNum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function convertToHebDayAndMonth (date){
+    let dateHebNoYearArr=date.split('-').reverse();
+    dateHebNoYearArr.pop();
+    return dateHebNoYearArr.join('/');
+}
+
+function updateChart (timeLineData) {
+    const entries = Object.entries(timeLineData)
+    let timeLineDates=[];
+    let timeLineCases=[];
 
     entries.forEach((dayData)=>{
-        let dateHebNoYearArr=dayData[1].date.split('-').reverse();
-        dateHebNoYearArr.pop();
-        israelTLDates.push(dateHebNoYearArr.join('/'));
-        israelTLCases.push(dayData[1].confirmed);
+        timeLineDates.push(convertToHebDayAndMonth(dayData[1].date));
+        timeLineCases.push(dayData[1].confirmed);
     })
 
-    israelTLDates=israelTLDates.reverse();
-    israelTLCases=israelTLCases.reverse();
-    // dont forget in install npm chart package by: npm install chart.js --save
-    let coronaPerDayChart=document.getElementById('corona-per-day-chart').getContext('2d');
+    timeLineDates=timeLineDates.reverse();
+    timeLineCases=timeLineCases.reverse();
+
+    let presentChartVar=presentChart(timeLineDates,timeLineCases);
+    return presentChartVar
+}
+
+function presentChart (timeLineDates,timeLineCases) {     
     let massChart = new Chart(coronaPerDayChart, {
         type: 'bar',
         data: {
-            labels: israelTLDates,
+            labels: timeLineDates,
             datasets: [{
                 label: 'Confirmed cases',
-                data: israelTLCases,
+                data: timeLineCases,
                 backgroundColor: '#0062cc',
                 hoverBackgroundColor: 'silver'
             }]   
@@ -191,12 +218,8 @@ function renderCoronaData(inputCountry){
             }
         }
     });
-    })
-
-
-    
+    return massChart
 }
-
 
 
 
