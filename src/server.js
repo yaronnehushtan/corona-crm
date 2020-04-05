@@ -71,11 +71,11 @@ app.post('/customer/:id', (req,res)=>{      //edit customer
         return
     }
 
-    const index = customers.indexOf(requestedCustomer);
-    customers[index].fullName=req.body.fullName;
-    customers[index].email=req.body.email;
-    customers[index].birthDate=req.body.birthDate;
-    customers[index].notes=req.body.notes;
+    
+    requestedCustomer.fullName=req.body.fullName;
+    requestedCustomer.email=req.body.email;
+    requestedCustomer.birthDate=req.body.birthDate;
+    requestedCustomer.notes=req.body.notes;
 
     res.status(200).send();
 })
