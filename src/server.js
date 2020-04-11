@@ -9,30 +9,30 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 let customers=[];
+let id=1;
+
 const today = new Date();
 const date = today.getDate()+'/'+(today.getMonth()+1)+'/'+today.getFullYear();
 
 
 app.put('/customer', (req,res)=>{       //Create customer
-    const fullName=req.body.fullName;
-    const email=req.body.email;
-    const birthDate=req.body.birthDate;
-    const notes=req.body.notes;
 
-    if (fullName.split(' ').length<2 || email.indexOf('@')===-1){
+    if (req.body.fullName.split(' ').length<2 || req.body.email.indexOf('@')===-1){
         res.status(400).json({"error": "Invalid input"});
         return
     }
 
+
     customers.push({
-        id: customers.length+1,
-        fullName: fullName,
-        email: email,
-        birthDate: birthDate,
-        notes: notes,
+        id: id,     //changed from .length because in case of delete customer it repeats ids
+		fullName: req.body.fullName,
+		email: req.body.email,
+		birthDate: req.body.birthDate,
+		notes: req.body.notes,
         ctreatedDate: date
     });
 
+    id++;
     res.status(201).send();
 })
 
@@ -43,7 +43,6 @@ app.get('/customer', (req,res)=>{       //Get all customers
 
 app.get('/customer/:id',(req,res)=>{          //Get a customers by id
     const requestedCustomer = customers.find(customer=>{
-        console.log(req.params.id);
         return customer.id === parseInt(req.params.id);
     });
 

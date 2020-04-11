@@ -5,7 +5,7 @@
 }
 
 
-#create-user-icon {
+.create-add-user-icon {
     font-size: 20px;
 }
 
@@ -29,3 +29,33 @@ div .bg-secondary{
     font-size: 1.2rem
 }
 
+.backrop {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color:rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    display: none; /* none flex*/
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-box {
+    width: 500px;
+    max-width: 100%;
+    background: #ffffff;
+    padding: 15px;
+}
+
+/* #close-modal {
+
+} */
+
+
+#myMap {
+   
+    width: 100%;
+    height: 300px;
+}

@@ -3,6 +3,7 @@
 <head>
 
     <title>Corona CRM</title>
+    <meta charset="utf-8" />
     <link rel="stylesheet" type="text/css" href="style.css">
 <!-- 	Icons Font Awesom -->
 	<script src="https://kit.fontawesome.com/f1eb5cf7f9.js" crossorigin="anonymous"></script>
@@ -12,9 +13,80 @@
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 
+  <script type='text/javascript' src='http://www.bing.com/api/maps/mapcontrol?callback=GetMap&key=ApO89CjG_LmYqW3s-AivA5LLymPwoXzBogjDhfsM4LViUPe2iBsf6wiId6QmGKLa' async defer></script>
+
 </head>
+
 <body>
   <main>
+    <div class="backrop modal" id="modal">  <!--Edit customer-->
+       <div class="modal-box px-4 d-flex flex-column bg-light">
+        <button class="btn btn-outline-dark align-self-end" id="close-modal"><i class="fas fa-times"></i></button>
+        <h5 class="mb-5 mt-3 align-self-center"><i class="fas fa-user-edit mr-2 create-add-user-icon"></i>Edit Customer</h5>
+        <form id="edit-customer-form">
+          <input type="text" class="form-control d-none" name="id" id="id-edit" >
+          <input class="form-check-input d-none" type="checkbox" id="over18-edit" name="over18" checked>
+           <div class="form-group row">
+              <label for="fullName" class="col-sm-4 col-form-label">Full Name</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" name="fullName" id="fullName-edit" placeholder="Enter name">
+                <p class="text-danger small d-none error-message-fullName">* Invalid: must contain at least two words  IN EDIT</p>
+              </div>
+          </div>
+          
+          <div class="form-group row">
+              <label for="email" class="col-sm-4 col-form-label">Email</label>
+              <div class="col-sm-8">
+                <input type="email" class="form-control" name="email" id="email-edit" placeholder="Enter email">
+                <p class="text-danger small d-none error-message-email">* Invalid: email must contain @</p>
+              </div>
+          </div>
+          <div class="form-group row">
+              <label for="birthDate" class="col-sm-4 col-form-label">Birth Date</label>
+              <div class="col-sm-8">
+                <input type="date" class="form-control" name="birthDate" id="birthDate-edit">
+              </div>
+          </div>
+          <div class="form-group row">
+              <label for="notes" class="col-sm-4 col-form-label">Notes</label>
+              <div class="col-sm-8">
+                <textarea class="form-control" rows="2" name="notes" id="notes-edit" placeholder="Enter your notes..."></textarea>
+              </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-sm-10 offset-sm-4">
+              <button type="submit" class="btn btn-outline-primary font-weight-bold">Save</button>
+            </div>
+          </div>
+         </form>
+      </div>
+      
+    </div>
+
+    <div class="backrop modal"> <!-- Delete Alert-->
+      <div class="modal-box">
+       <div class="container-fulid" id="delete-box">
+         <div class="row">
+           <div class="col m-3">
+            <p class="text-center">Are you sure you want to delete <span class="text-primary" id="delete-customer-name"></span> ?</p>
+           </div>
+         </div>
+         <div class="row justify-content-center ">
+           <div class="col-3 mb-2 mx-3 text-center">
+            <button class="btn btn-success" id="close-delete-modal-yes">Yes</button>
+           </div>
+            <div class="col-3 mb-2 mx-3 text-center">
+            <button class="btn btn-danger" id="close-delete-modal-no">No</button>
+           </div>
+         </div>
+        
+        <div class="d-none" id="delete-customer-id"></div>
+
+       </div>
+     </div>
+   </div>
+
+
     <div class="container-fluid">
         <div class="row bg-dark py-2">
             <div class="col">     <!-- Title-->
@@ -24,13 +96,14 @@
         <section> <!--Customers section -->
           <div class="row">
               <div class="col-3 bg-secondary"> <!-- Add Customer-->
-                  <h5 class="m-4 mb-5"><i class="fas fa-user-plus mr-2"  id="create-user-icon"></i>Create new Customer</h5>
+                  <h5 class="m-4 mb-5"><i class="fas fa-user-plus mr-2 create-add-user-icon"></i>Create new Customer</h5>
                   <form id="new-customer-form">
+                   
                       <div class="form-group row">
                           <label for="fullName" class="col-sm-4 col-form-label">Full Name</label>
                           <div class="col-sm-8">
                             <input type="text" class="form-control" name="fullName" id="fullName" placeholder="Enter name">
-                            <p class="text-danger small d-none" id="error-message-fullName">* Invalid: must contain at least two words</p>
+                            <p class="text-danger small d-none error-message-fullName">* Invalid: must contain at least two words</p>
                           </div>
                       </div>
                       
@@ -38,7 +111,7 @@
                           <label for="email" class="col-sm-4 col-form-label">Email</label>
                           <div class="col-sm-8">
                             <input type="email" class="form-control" name="email" id="email" placeholder="Enter email">
-                            <p class="text-danger small d-none" id="error-message-email">* Invalid: email must contain @</p>
+                            <p class="text-danger small d-none error-message-email">* Invalid: email must contain @</p>
                           </div>
                       </div>
                       <div class="form-group row">
@@ -122,17 +195,17 @@
                 <div class="col-6 p-2">
                   <div class="bg-white p-3 parameters-frame">
                     <p class=" m-0 h6">Total recovered: </p>
-                    <p class="text-danger font-weight-bold m-0" id="recovered"></p>
+                    <p class="text-success font-weight-bold m-0" id="recovered"></p>
                   </div>
                 </div>
-                <div class="col p-2">
+                <div class="col-5 p-2">
 
                   <form id="new-choose-country-form">
                     <div class="form-group row">
                         <div class="col-12">                        
                           <label for="choose-input-country">Choose country</label>
                         </div>>
-                        <div class="col-6">
+                        <div class="col-7">
                           <select class="form-control" id="choose-input-country" name="countyChosen">
                             <option value="IL">Israel</option>
                             <option value="IT">Italy</option>
@@ -149,7 +222,11 @@
                     </div>                      
                   </form>
 
-                </div>    
+                </div>  
+                <div class="col-7 align-content-end m-0 mt-2 p-0 pr-2">
+                    <div id="myMap"></div>
+                </div>
+                
               </div>     
             </div>
 
@@ -170,16 +247,17 @@
         </section>
 
 
-      
- 
 
 
     </div>
   </main>
+
   <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  <script src="modal.js"></script>
   <script src="scripts.js"></script>
+  <script src="corona-dashboard.js"></script>
 
 </body>
 

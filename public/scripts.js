@@ -1,8 +1,7 @@
 const newCustomerForm = document.getElementById('new-customer-form');
+const newEditForm=document.getElementById("edit-customer-form");
 const API_URL= 'http://localhost:3000';
-const CORONA_DATA_API_URL='https://corona-api.com/countries'
 const tBody=document.getElementById("customers-list-table-body");
-
 
 
 newCustomerForm.addEventListener('submit', (e) => {
@@ -23,20 +22,32 @@ newCustomerForm.addEventListener('submit', (e) => {
 
 });
 
+function createCustomer(customer) {
+	return fetch(API_URL + '/customer', {
+		method: 'PUT',
+		body: JSON.stringify(customer),
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
+}
+
 // check all validations
+
 function validate(form){
-    let nameError=document.getElementById('error-message-fullName');
-    let emailError=document.getElementById('error-message-email');
-    let over18Error=document.getElementById('error-message-over18');
+    let nameError=form.querySelector('.error-message-fullName');
+    let emailError=form.querySelector('.error-message-email');
+    let over18Error=document.getElementById('error-message-over18')
+    
 
     let validName=true;
     let validEmail=true;
-    
-    if (!form.over18.checked){  
-        over18Error.classList.remove("d-none");   
-    } else {
-        over18Error.classList.add("d-none")
-    }
+
+        if (!form.over18.checked){
+            over18Error.classList.remove("d-none");  
+        } else {
+            over18Error.classList.add("d-none")  
+        }
 
     if (form.fullName.value.split(" ").length<2){
         nameError.classList.remove("d-none");
@@ -55,14 +66,95 @@ function validate(form){
     if (!validName || !validEmail || !form.over18.checked){
         return false;
     } 
-       
+
     return true;
 }
 
 
-function createCustomer(customer) {
-	return fetch(API_URL + '/customer', {
-		method: 'PUT',
+// render customer list
+function renderCustomersList(){
+
+    return fetch(API_URL+'/customer')
+    .then(response => response.json())
+    .then(customersList => {   
+    
+      tBody.innerHTML = '';
+      
+      customersList.forEach((customer)=>{
+        const row= buildCustomerRow(customer)
+
+        tBody.appendChild(row);
+    })
+
+})
+
+}
+
+function buildCustomerRow(customer) {
+    const row = document.createElement('tr');
+    customer.birthDate=customer.birthDate.split('-').reverse().join('/');
+	row.innerHTML = `
+		<td class="customerId">${customer.id}</td>
+		<td class="fullName">${customer.fullName}</td>
+		<td>${customer.email}</td>
+        <td>${customer.birthDate}</td>
+        <td>${customer.ctreatedDate}</td>
+		<td class="">
+            <button class="btn btn-sm btn-edit"><i class="far fa-edit mr-1 btn-edit"></i></button>
+            <button class="btn btn-sm btn-delete"><i class="far fa-trash-alt text-danger btn-delete"></i></button>
+        </td>`;
+	row.querySelector('.btn-edit').addEventListener('click', () => {
+        let check=uploadCustomerData(row);
+		openModal('edit');
+    });
+    row.querySelector('.btn-delete').addEventListener('click', () => {
+        let check=deletecustomerAlert(row);
+        openModal('delete');
+	});
+	return row;
+}
+
+function uploadCustomerData(row) {
+    let index=row.querySelector('.customerId').textContent;
+    let url=API_URL+'/customer/'+index;
+
+    return fetch(url)
+    .then(response => response.json())
+    .then(customerDetails => {   
+        newEditForm.id.value=customerDetails.id;
+        newEditForm.fullName.value=customerDetails.fullName;
+        newEditForm.email.value=customerDetails.email;
+        newEditForm.birthDate.value=customerDetails.birthDate;
+        newEditForm.notes.value=customerDetails.notes;
+    })
+
+}
+
+newEditForm.addEventListener('submit', (e) => {
+    e.preventDefault();  
+
+    if(!validate(newEditForm)){
+        return;
+    }
+
+    updateCustomer ({
+        id: newEditForm.id.value,
+        fullName: newEditForm.fullName.value,  
+        email: newEditForm.email.value,
+        birthDate: newEditForm.birthDate.value,
+        notes: newEditForm.notes.value
+    });
+
+    closeEditModal();
+
+    renderCustomersList();
+
+});
+        
+function updateCustomer(customer) {
+    let url=API_URL+'/customer/'+customer.id;
+	return fetch(url, {
+		method: 'POST',
 		body: JSON.stringify(customer),
 		headers: {
 			'Content-Type': 'application/json'
@@ -70,158 +162,40 @@ function createCustomer(customer) {
 	});
 }
 
-// render customer list
-function renderCustomersList(){
-    return fetch(API_URL+'/customer')
+function deletecustomerAlert(row) {
+    let index=row.querySelector('.customerId').textContent;
+    let url=API_URL+'/customer/'+index;
+    const deleteCustomerName=document.getElementById('delete-customer-name');
+    const deleteCustomerid=document.getElementById('delete-customer-id');
+
+    return fetch(url)
     .then(response => response.json())
-    .then(customersList => {   
+    .then(customerDetails => {   
+        deleteCustomerName.textContent=customerDetails.fullName;
+        deleteCustomerid.textContent=customerDetails.id;
+    })   
     
-      tBody.innerHTML = '';
-      customersList.forEach((customer)=>{
-        let row=document.createElement("tr");
-        let objTd={};
-
-        for (key in customer) {
-            // create tds and set atribute
-
-            if (key!=='notes') {
-                if (key==='id') {
-                    objTd[key]=document.createElement("th");
-                    objTd[key].setAttribute("scope", "row")
-                } else {
-                    objTd[key]=document.createElement("td");
-                }
-        
-                // Add text content
-                if (key==='birthDate') {
-                    objTd[key].textContent=customer[key].split('-').reverse().join('/')
-                } else {
-                    objTd[key].textContent=customer[key];
-                }
-            }       
-        }
-
-        // Add Action td
-        objTd.action=document.createElement("td");
-        let editCustomerI=document.createElement("i");
-        let deleteCustomerI=document.createElement("i");
-        editCustomerI.setAttribute("class", "far fa-edit mr-2");
-        deleteCustomerI.setAttribute("class", "far fa-trash-alt text-danger ml-1");
-        objTd.action.appendChild(editCustomerI);
-        objTd.action.appendChild(deleteCustomerI);      
-        
-        //append all tds to row
-        for (key in objTd) {
-            row.appendChild(objTd[key]);
-        }
-
-        tBody.appendChild(row);   
-    })
-
-})
-
 }
 
-
-//-------------------------------
-//      Corona Dashboard
-//-------------------------------
-
-// DOM
-const newChooseContryForm = document.getElementById('new-choose-country-form');
-const countryName=document.getElementById('country-name');
-const totalCases=document.getElementById('total-cases');
-const casesToday=document.getElementById('cases-today');
-const totalDeath=document.getElementById('death');
-const totalRecovered=document.getElementById('recovered');
-const coronaPerDayChart=document.getElementById('corona-per-day-chart').getContext('2d');
-
-// call render corona dashboard first time
- let coronaData=renderCoronaData(inputCountry=newChooseContryForm.countyChosen.value);
-
-// call render corona dashboard after chosing a country
- newChooseContryForm.addEventListener('submit', (e) => {
-     e.preventDefault();
-     const inputCountry=newChooseContryForm.countyChosen.value
-     let coronaData=renderCoronaData(inputCountry);
- });
+const deleteBox=document.getElementById('delete-box');
 
 
-// render corona dashboard function
-function renderCoronaData(inputCountry){
-    let coronaApiByCountry=CORONA_DATA_API_URL+'/'+inputCountry;
-    
-    return fetch(coronaApiByCountry)
-    .then(response => response.json())
-    .then(coronaData => {  
-    
-    let israelCoronaData=coronaData.data
-    countryName.textContent=israelCoronaData.name;
-    totalCases.textContent=numberWithCommas(israelCoronaData.latest_data.confirmed);
-    casesToday.textContent=numberWithCommas(israelCoronaData.today.confirmed);
-    totalDeath.textContent=numberWithCommas(israelCoronaData.latest_data.deaths);
-    totalRecovered.textContent=numberWithCommas(israelCoronaData.latest_data.recovered);
+document.getElementById('close-delete-modal-yes').addEventListener('click', ()=>{
+    let index=document.getElementById('delete-customer-id').textContent;
 
-    let updateChartVar=updateChart(coronaData.data.timeline);    
-    }) 
+    deletCustomer(index);
+
+    closeDeleteModal();
+    renderCustomersList();
+
+});
+
+function deletCustomer(customerId) {
+    let url=API_URL+'/customer/'+customerId;
+	return fetch(url, {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
 }
-
-function numberWithCommas(strNum) {
-    return strNum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-function convertToHebDayAndMonth (date){
-    let dateHebNoYearArr=date.split('-').reverse();
-    dateHebNoYearArr.pop();
-    return dateHebNoYearArr.join('/');
-}
-
-function updateChart (timeLineData) {
-    const entries = Object.entries(timeLineData)
-    let timeLineDates=[];
-    let timeLineCases=[];
-
-    entries.forEach((dayData)=>{
-        timeLineDates.push(convertToHebDayAndMonth(dayData[1].date));
-        timeLineCases.push(dayData[1].confirmed);
-    })
-
-    timeLineDates=timeLineDates.reverse();
-    timeLineCases=timeLineCases.reverse();
-
-    let presentChartVar=presentChart(timeLineDates,timeLineCases);
-    return presentChartVar
-}
-
-function presentChart (timeLineDates,timeLineCases) {     
-    let massChart = new Chart(coronaPerDayChart, {
-        type: 'bar',
-        data: {
-            labels: timeLineDates,
-            datasets: [{
-                label: 'Confirmed cases',
-                data: timeLineCases,
-                backgroundColor: '#0062cc',
-                hoverBackgroundColor: 'silver'
-            }]   
-        },
-        options:{
-            legend:{
-              display:false
-            },
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-        }
-    });
-    return massChart
-}
-
-
-
-
- 
